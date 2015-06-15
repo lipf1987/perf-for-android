@@ -221,11 +221,13 @@ common_predefined_macros := \
     -DNO_LIBAUDIT \
 
 include $(CLEAR_VARS)
-ifeq ($(TARGET_ARCH),arm)
+
 # b/17167262, builtin-report.c and builtin-top.c have undefined __aeabi_read_tp
 # when compiled with clang -fpie.
+#
+# Aside from that, this code is not -Wreturn-type safe. Rather than rewriting
+# the bison generated code, just use GCC.
 LOCAL_CLANG := false
-endif
 
 LOCAL_SRC_FILES := $(perf_src_files)
 LOCAL_SRC_FILES_x86 := $(perf_src_files_x86)
