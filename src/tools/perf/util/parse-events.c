@@ -997,7 +997,6 @@ void print_tracepoint_events(const char *subsys_glob, const char *event_glob,
 	struct dirent *sys_next, *evt_next, sys_dirent, evt_dirent;
 	char evt_path[MAXPATHLEN];
 	char dir_path[MAXPATHLEN];
-
 	if (debugfs_valid_mountpoint(tracing_events_path))
 		return;
 
@@ -1111,6 +1110,7 @@ static void __print_events_type(u8 type, struct event_symbol *syms,
 	unsigned i;
 
 	for (i = 0; i < max ; i++, syms++) {
+		if(NULL != syms->symbol) {
 		if (!is_event_supported(type, i))
 			continue;
 
@@ -1121,6 +1121,7 @@ static void __print_events_type(u8 type, struct event_symbol *syms,
 			snprintf(name, sizeof(name), "%s", syms->symbol);
 
 		printf("  %-50s [%s]\n", name, event_type_descriptors[type]);
+		}
 	}
 }
 
@@ -1176,8 +1177,8 @@ static void print_symbol_events(const char *event_glob, unsigned type,
 	char name[MAX_NAME_LEN];
 
 	for (i = 0; i < max; i++, syms++) {
-
-		if (event_glob != NULL && 
+		if(syms->symbol != NULL) {
+		if (syms->symbol != NULL && event_glob != NULL && 
 		    !(strglobmatch(syms->symbol, event_glob) ||
 		      (syms->alias && strglobmatch(syms->alias, event_glob))))
 			continue;
@@ -1192,12 +1193,13 @@ static void print_symbol_events(const char *event_glob, unsigned type,
 
 		if (strlen(syms->alias))
 			snprintf(name, MAX_NAME_LEN, "%s OR %s", syms->symbol, syms->alias);
-		else
+		else if(syms->symbol != NULL)
 			strncpy(name, syms->symbol, MAX_NAME_LEN);
 
 		printf("  %-50s [%s]\n", name, event_type_descriptors[type]);
 
 		printed++;
+		}
 	}
 
 	if (printed)
